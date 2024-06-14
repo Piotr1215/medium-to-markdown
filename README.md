@@ -1,0 +1,41 @@
+Great! Let's start by creating a `README.md` file for your project. Here is an example of what the `README.md` might look like:
+
+```markdown
+# Medium to Markdown Converter
+
+A simple tool to convert Medium blogs to Markdown and clean up the Markdown file.
+
+## Description
+
+This tool uses Puppeteer to scrape Medium blog posts, download images, convert the HTML content to Markdown using Pandoc, and then clean up the Markdown file by removing unwanted tags and formatting code blocks.
+
+## Installation
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/yourusername/mediumtomd.git
+   cd mediumtomd
+   ```
+
+2. Install the dependencies:
+   ```sh
+   npm install
+   ```
+
+## Usage
+
+To use the tool, run the following command with the Medium blog URL as a parameter:
+```sh
+node index.js 'https://medium.com/some-blog-post-url'
+```
+
+## Features
+
+- Downloads images from the Medium blog post and updates the Markdown file with local image paths.
+- Converts the HTML content of the blog post to Markdown.
+- Cleans up the Markdown file by removing `div` and `span` tags and formatting code blocks.
+- Removes angle brackets around URLs.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -1,0 +1,164 @@
+const puppeteer = require('puppeteer');
+const fs = require('fs');
+const path = require('path');
+const axios = require('axios');
+
+async function downloadImage(url, filepath) {
+  console.log(`Downloading image from ${url} to ${filepath}`);
+  const response = await axios({
+    url,
+    responseType: 'stream',
+  });
+  return new Promise((resolve, reject) => {
+    response.data
+      .pipe(fs.createWriteStream(filepath))
+      .on('finish', () => {
+        console.log(`Image downloaded to ${filepath}`);
+        resolve();
+      })
+      .on('error', e => {
+        console.error(`Error downloading image: ${e.message}`);
+        reject(e);
+      });
+  });
+}
+
+(async () => {
+  const url = process.argv[2];
+  if (!url) {
+    console.error('Please provide a URL as a parameter.');
+    process.exit(1);
+  }
+  console.log(`Navigating to ${url}`);
+
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto(url, {
+    waitUntil: 'networkidle2',
+  });
+
+  const content = await page.content();
+  const $ = require('cheerio').load(content);
+
+  // Create _media directory if it doesn't exist
+  const mediaDir = path.resolve(process.cwd(), '_media');
+  if (!fs.existsSync(mediaDir)) {
+    fs.mkdirSync(mediaDir);
+  }
+  console.log(`Created media directory at ${mediaDir}`);
+
+  // Generate a random number to prepend to all image filenames
+  const randomPrefix = Math.floor(Math.random() * 1000000);
+  console.log(`Using random prefix: ${randomPrefix}`);
+
+  // Download images and update src attributes
+  const imgPromises = [];
+  $('img').each((i, img) => {
+    const src = $(img).attr('src');
+    if (src) {
+      const imgName = `${randomPrefix}_image${i}.jpg`;
+      const imgPath = path.join(mediaDir, imgName);
+      console.log(`Found image: ${src}, saving as ${imgPath}`);
+      imgPromises.push(downloadImage(src, imgPath));
+      $(img).attr('src', `_media/${imgName}`);
+      $(img).removeAttr('class width height');
+    } else {
+      console.log(`No src attribute found for image ${i}`);
+    }
+  });
+
+  await Promise.all(imgPromises);
+
+  const updatedHtml = $.html();
+  const outputHtmlPath = path.join(process.cwd(), 'blog.html');
+  fs.writeFileSync(outputHtmlPath, updatedHtml);
+  console.log(`Updated HTML written to ${outputHtmlPath}`);
+
+  await browser.close();
+
+  // Convert HTML to Markdown using the Lua filter
+  const { exec } = require('child_process');
+  const outputMdPath = path.join(process.cwd(), 'blog.md');
+  exec(`pandoc --from html --to gfm -o ${outputMdPath} ${outputHtmlPath}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error converting HTML to Markdown: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`pandoc stderr: ${stderr}`);
+      return;
+    }
+    console.log('HTML successfully converted to Markdown.');
+
+    // Cleanup script starts here
+    const filePath = outputMdPath;
+    const tempFilePath = path.join(process.cwd(), 'temp_blog.md');
+
+    // Function to remove div and span tags but keep the content inside
+    function removeTagsKeepContent(data, tag) {
+      const tagPattern = new RegExp(`<${tag}[^>]*>`, 'g');
+      const closingTagPattern = new RegExp(`</${tag}>`, 'g');
+      return data.replace(tagPattern, '').replace(closingTagPattern, '');
+    }
+
+    // Function to clean up the artifacts in code blocks and add bash syntax highlighting
+    function cleanCodeBlocks(data) {
+      return data.replace(/```[\s\S]*?```/g, match => {
+        // Remove any unwanted characters after the initial backticks and add bash for syntax highlighting
+        return match.replace(/```[^`\n]*\n/, '```bash\n');
+      });
+    }
+
+    // Function to remove angle brackets around URLs
+    function removeAngleBracketsAroundURLs(data) {
+      return data.replace(/<https?:\/\/[^>]+>/g, match => {
+        // Remove the angle brackets around the URL
+        return match.slice(1, -1);
+      });
+    }
+
+    // Read the Markdown file
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        console.error(`Error reading the file: ${err.message}`);
+        return;
+      }
+
+      // Remove div and span tags but keep the content inside
+      let cleanedData = removeTagsKeepContent(data, 'div');
+      cleanedData = removeTagsKeepContent(cleanedData, 'span');
+
+      // Clean up the artifacts in code blocks and add bash syntax highlighting
+      cleanedData = cleanCodeBlocks(cleanedData);
+
+      // Remove angle brackets around URLs
+      cleanedData = removeAngleBracketsAroundURLs(cleanedData);
+
+      // Write the cleaned data to a temporary file
+      fs.writeFile(tempFilePath, cleanedData, 'utf8', (err) => {
+        if (err) {
+          console.error(`Error writing to the temporary file: ${err.message}`);
+          return;
+        }
+
+        // Rename the temporary file to the original file
+        fs.rename(tempFilePath, filePath, (err) => {
+          if (err) {
+            console.error(`Error renaming the temporary file: ${err.message}`);
+            return;
+          }
+          console.log('Markdown file cleaned successfully!');
+
+          // Remove the temporary HTML file
+          fs.unlink(outputHtmlPath, (err) => {
+            if (err) {
+              console.error(`Error deleting the temporary HTML file: ${err.message}`);
+              return;
+            }
+            console.log('Temporary HTML file deleted successfully!');
+          });
+        });
+      });
+    });
+  });
+})();
