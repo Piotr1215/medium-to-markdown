@@ -12,21 +12,23 @@ This tool uses Puppeteer to scrape Medium blog posts, download images, convert t
 ## Installation
 
 1. Clone the repository:
-   ```sh
-   git clone https://github.com/yourusername/mediumtomd.git
-   cd mediumtomd
-   ```
+
+```sh
+git clone https://github.com/yourusername/mediumtomd.git
+cd mediumtomd
+```
 
 2. Install the dependencies:
-   ```sh
-   npm install
-   ```
+
+```sh
+npm install -g medium-blog-exporter 
+```
 
 ## Usage
 
 To use the tool, run the following command with the Medium blog URL as a parameter:
 ```sh
-node index.js 'https://medium.com/some-blog-post-url'
+mediummd 'https://medium.com/some-blog-post-url'
 ```
 
 ## Features
