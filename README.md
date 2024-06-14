@@ -1,6 +1,3 @@
-Great! Let's start by creating a `README.md` file for your project. Here is an example of what the `README.md` might look like:
-
-```markdown
 # Medium to Markdown Converter
 
 A simple tool to convert Medium blogs to Markdown and clean up the Markdown file.
