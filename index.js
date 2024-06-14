@@ -41,7 +41,10 @@ program
       waitUntil: 'networkidle2',
     });
 
-    const content = await page.content();
+    const content = await page.evaluate(() => {
+      const article = document.querySelector('article');
+      return article ? article.innerHTML : '';
+    });
     const $ = require('cheerio').load(content);
 
     // Create _media directory if it doesn't exist
@@ -73,7 +76,7 @@ program
 
     await Promise.all(imgPromises);
 
-    const updatedHtml = $.html();
+    const updatedHtml = `<html><body>${$.html()}</body></html>`;
     const outputHtmlPath = path.join(process.cwd(), 'blog.html');
     fs.writeFileSync(outputHtmlPath, updatedHtml);
     console.log(`Updated HTML written to ${outputHtmlPath}`);
@@ -98,7 +101,6 @@ program
       const filePath = outputMdPath;
       const tempFilePath = path.join(process.cwd(), 'temp_blog.md');
 
-      // Function to remove div and span tags but keep the content inside
       function removeTagsKeepContent(data, tag) {
         const tagPattern = new RegExp(`<${tag}[^>]*>`, 'g');
         const closingTagPattern = new RegExp(`</${tag}>`, 'g');
@@ -121,7 +123,35 @@ program
         });
       }
 
-      // Read the Markdown file
+      // Function to remove everything between the last header and the line that contains only the word "Share"
+      function removeContentAfterLastHeader(data) {
+        const lines = data.split('\n');
+        let lastHeaderIndex = -1;
+        let shareLineIndex = -1;
+
+        // Find the last header and the "Share" line
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].startsWith('#')) {
+            lastHeaderIndex = i;
+          }
+          if (lines[i].trim() === 'Share') {
+            shareLineIndex = i;
+            break;
+          }
+        }
+
+        // If both the last header and "Share" line are found, remove the content in between and the "Share" line itself
+        if (lastHeaderIndex !== -1 && shareLineIndex !== -1 && shareLineIndex > lastHeaderIndex) {
+          return lines.slice(0, lastHeaderIndex + 1).concat(lines.slice(shareLineIndex + 1)).join('\n');
+        }
+
+        return data;
+      }
+      // Function to remove unnecessary empty lines
+      function removeUnnecessaryEmptyLines(data) {
+        return data.replace(/\n{2,}/g, '\n\n');
+      }
+
       fs.readFile(filePath, 'utf8', (err, data) => {
         if (err) {
           console.error(`Error reading the file: ${err.message}`);
@@ -138,7 +168,11 @@ program
         // Remove angle brackets around URLs
         cleanedData = removeAngleBracketsAroundURLs(cleanedData);
 
-        // Write the cleaned data to a temporary file
+        // Remove content after the last header and before the "Share" line
+        cleanedData = removeContentAfterLastHeader(cleanedData);
+
+        // Remove unnecessary empty lines
+        cleanedData = removeUnnecessaryEmptyLines(cleanedData);
         fs.writeFile(tempFilePath, cleanedData, 'utf8', (err) => {
           if (err) {
             console.error(`Error writing to the temporary file: ${err.message}`);

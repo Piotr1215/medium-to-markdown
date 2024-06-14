@@ -28,6 +28,8 @@ mediummd 'https://medium.com/some-blog-post-url'
 - Converts the HTML content of the blog post to Markdown.
 - Cleans up the Markdown file by removing `div` and `span` tags and formatting code blocks.
 - Removes angle brackets around URLs.
+- Removes content after the last header and before the "Share" line.
+- Removes unnecessary empty lines.
 
 ## License
 
