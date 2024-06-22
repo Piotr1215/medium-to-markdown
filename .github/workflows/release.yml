@@ -14,6 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Print tag
+        run: echo "Tag: ${{ github.ref }}"
+
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -42,7 +45,7 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           npm version patch -m "Release version %s"
-          git push --follow-tags
+          git push --follow-tags https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
           npm run build
 
       - name: Publish to npm
@@ -56,4 +59,4 @@ jobs:
           files: |
             dist/index.js
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
