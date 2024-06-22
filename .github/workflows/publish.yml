@@ -8,6 +8,9 @@ on:
       - 'package.json'
 
 jobs:
+  build-and-test:
+    uses: ./.github/workflows/build-reusable.yml
+
   publish:
     runs-on: ubuntu-latest
 
