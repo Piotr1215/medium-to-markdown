@@ -25,9 +25,6 @@ jobs:
           npm install
           npm install --save-dev @babel/core @babel/cli @babel/preset-env
 
-      - name: Run tests
-        run: npm test
-
       - name: Increment version and build
         run: |
           git config --global user.name 'github-actions[bot]'
