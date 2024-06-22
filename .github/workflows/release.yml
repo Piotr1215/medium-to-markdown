@@ -18,9 +18,6 @@ jobs:
         id: extract_tag
         run: echo "TAG_NAME=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      - name: Print tag
-        run: echo "Tag: ${{ env.TAG_NAME }}"
-
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
