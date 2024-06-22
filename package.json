@@ -4,11 +4,11 @@
   "description": "Convert medium blogs to markdown and clearnup markdown",
   "main": "index.js",
   "bin": {
-    "mediummd": "index.js"
+    "mediummd": "dist/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "echo \"Building project...\""
+    "build": "babel . --out-dir dist --ignore node_modules,dist"
   },
   "author": "Piotr Zaniewski",
   "license": "MIT",
@@ -18,12 +18,17 @@
     "commander": "^12.1.0",
     "puppeteer": "^22.11.0"
   },
-    "keywords": [
+  "keywords": [
     "medium",
     "markdown",
     "converter",
     "scraping",
     "puppeteer",
     "automation"
-  ]
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.24.7",
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7"
+  }
 }
