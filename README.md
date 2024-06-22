@@ -31,6 +31,20 @@ mediummd 'https://medium.com/some-blog-post-url'
 - Removes content after the last header and before the "Share" line.
 - Removes unnecessary empty lines.
 
+## Release Process
+
+This project uses GitHub Actions to automate the release process. The release process is triggered by pushing a tag that follows the `v*.*.*` pattern (e.g., `v1.0.0`).
+
+### Steps in the Release Process
+
+1. **Checkout Code**: The workflow checks out the code from the repository.
+2. **Set up Node.js**: The workflow sets up Node.js version 18 and caches npm dependencies.
+3. **Install Dependencies**: The workflow installs the project dependencies using `npm install`.
+4. **Run Tests**: The workflow runs the tests using `npm test`.
+5. **Build Project**: The workflow builds the project using `npm run build`.
+6. **Publish to npm**: The workflow publishes the package to npm. Ensure that the `NPM_TOKEN` secret is set in the repository settings.
+7. **Create GitHub Release**: The workflow creates a GitHub release and attaches the built files. Ensure that the `GITHUB_TOKEN` secret is set in the repository settings.
+
 ## License
 
 This project is licensed under the MIT License 

@@ -7,7 +7,8 @@
     "mediummd": "index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Building project...\""
   },
   "author": "Piotr Zaniewski",
   "license": "MIT",
