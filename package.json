@@ -1,6 +1,6 @@
 {
   "name": "medium-blog-exporter",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Convert medium blogs to markdown and clearnup markdown",
   "main": "index.js",
   "bin": {
