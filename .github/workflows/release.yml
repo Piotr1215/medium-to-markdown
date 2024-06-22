@@ -2,9 +2,10 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
-  workflow_dispatch:
+    branches:
+      - main
+    paths:
+      - 'package.json'
 
 jobs:
   release:
@@ -14,10 +15,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Extract tag
-        id: extract_tag
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -25,40 +22,24 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          npm install
-          npm install --save-dev @babel/core @babel/cli @babel/preset-env
+        run: npm install
+
+      - name: Check version change and validity
+        id: check_version
+        run: ./check_version_change.sh
 
       - name: Get current package version
-        id: get_version
-        run: echo "PACKAGE_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
-
-      - name: Check version
-        id: check_version
-        run: |
-          if [ "$(printf '%s\n' "${{ env.TAG_NAME }}" "${{ env.PACKAGE_VERSION }}" | sort -V | head -n1)" == "${{ env.PACKAGE_VERSION }}" ]; then
-            echo "Package version is greater than or equal to tag version. Exiting..."
-            exit 1
-          else
-            echo "Version is ok."
-          fi
-
-      - name: Update package version
         if: steps.check_version.outcome == 'success'
-        run: |
-          npm version ${{ env.TAG_NAME }} --no-git-tag-version
-          git add package.json
-          git commit -m "Update version to ${{ env.TAG_NAME }}"
+        id: get_version
+        run: echo "PACKAGE_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
 
       - name: Build project
         if: steps.check_version.outcome == 'success'
         run: npm run build
 
-      - name: Push changes
+      - name: Run tests
         if: steps.check_version.outcome == 'success'
-        run: |
-          git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
-          git push --tags https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
+        run: npm test
 
       - name: Publish to npm
         if: steps.check_version.outcome == 'success'
@@ -73,4 +54,4 @@ jobs:
           files: |
             dist/index.js
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
