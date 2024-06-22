@@ -40,15 +40,27 @@ jobs:
       - name: Generate Changelog
         if: steps.check_version.outcome == 'success'
         run: |
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0)
-          echo "## v${{ env.PACKAGE_VERSION }} - $(date +'%Y-%m-%d')" > CHANGELOG.md
-          git log $PREVIOUS_TAG..HEAD --pretty=format:"* %s (%h)" >> CHANGELOG.md
+          if [ $(git tag -l | wc -l) -eq 0 ]; then
+            echo "No previous tags found. Generating changelog for all commits."
+            echo "## v${{ env.PACKAGE_VERSION }} - $(date +'%Y-%m-%d')" > CHANGELOG.md
+            git log --pretty=format:"* %s (%h)" >> CHANGELOG.md
+          else
+            PREVIOUS_TAG=$(git describe --tags --abbrev=0)
+            echo "## v${{ env.PACKAGE_VERSION }} - $(date +'%Y-%m-%d')" > CHANGELOG.md
+            git log $PREVIOUS_TAG..HEAD --pretty=format:"* %s (%h)" >> CHANGELOG.md
+          fi
 
       - name: Publish to npm
         if: steps.check_version.outcome == 'success'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish
+
+      - name: Create Git Tag
+        if: steps.check_version.outcome == 'success'
+        run: |
+          git tag "v${{ env.PACKAGE_VERSION }}"
+          git push origin "v${{ env.PACKAGE_VERSION }}"
 
       - name: Create GitHub Release
         if: steps.check_version.outcome == 'success'
