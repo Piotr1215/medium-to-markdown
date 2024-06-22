@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-test:
-    uses: ./.github/workflows/build-reusable.yml
+    uses: ./.github/workflows/actions/build-reusable.yml
 
   publish:
     runs-on: ubuntu-latest

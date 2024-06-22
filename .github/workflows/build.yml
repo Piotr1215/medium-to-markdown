@@ -12,4 +12,4 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/build-reusable.yml
+    uses: ./.github/workflows/actions/build-reusable.yml
