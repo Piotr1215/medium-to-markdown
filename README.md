@@ -8,7 +8,7 @@ This tool uses Puppeteer to scrape Medium blog posts, download images, convert t
 
 ## Installation
 
-1. Install the dependencies:
+Install the dependencies:
 
 ```sh
 npm install -g medium-blog-exporter 
