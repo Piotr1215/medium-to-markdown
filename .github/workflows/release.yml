@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'package.json'
 
 jobs:
   release:
@@ -29,12 +27,10 @@ jobs:
         run: ./check_version_change.sh
 
       - name: Get current package version
-        if: steps.check_version.outcome == 'success'
         id: get_version
         run: echo "PACKAGE_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
 
       - name: Build project
-        if: steps.check_version.outcome == 'success'
         run: npm run build
 
       - name: Generate Changelog
