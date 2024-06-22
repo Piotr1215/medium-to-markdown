@@ -14,8 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Extract tag
+        id: extract_tag
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
       - name: Print tag
-        run: echo "Tag: ${{ github.ref_name }}"
+        run: echo "Tag: ${{ env.TAG_NAME }}"
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -28,23 +32,43 @@ jobs:
           npm install
           npm install --save-dev @babel/core @babel/cli @babel/preset-env
 
-      - name: Set Git user
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Get current package version
+        id: get_version
+        run: echo "PACKAGE_VERSION=$(node -p -e "require('./package.json').version")" >> $GITHUB_ENV
 
-      - name: Increment version, build, and push changes
+      - name: Check version
+        id: check_version
         run: |
-          npm version patch -m "Release version %s"
-          npm run build
-          git push --follow-tags https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
+          if [ "$(printf '%s\n' "${{ env.TAG_NAME }}" "${{ env.PACKAGE_VERSION }}" | sort -V | head -n1)" != "${{ env.TAG_NAME }}" ]; then
+            echo "Package version is greater than or equal to tag version. Exiting..."
+            exit 1
+          fi
+          echo "Version is ok."
+
+      - name: Update package version
+        if: steps.check_version.outputs.exit_code == 0
+        run: |
+          npm version ${{ env.TAG_NAME }} --no-git-tag-version
+          git add package.json
+          git commit -m "Update version to ${{ env.TAG_NAME }}"
+
+      - name: Build project
+        run: npm run build
+
+      - name: Push changes
+        if: steps.check_version.outputs.exit_code == 0
+        run: |
+          git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
+          git push --tags https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
 
       - name: Publish to npm
+        if: steps.check_version.outputs.exit_code == 0
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
+        if: steps.check_version.outputs.exit_code == 0
         uses: softprops/action-gh-release@v1
         with:
           files: |
