@@ -20,12 +20,19 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install --save-dev @babel/core @babel/cli @babel/preset-env
 
       - name: Run tests
         run: npm test
 
-      - name: Build project
+      - name: Increment version
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          npm version patch -m "Release version %s"
+          git push --follow-tags
         run: npm run build
 
       - name: Publish to npm
@@ -37,6 +44,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/**
+            dist/index.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
