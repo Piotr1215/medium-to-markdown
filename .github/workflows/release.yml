@@ -27,13 +27,13 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Increment version
+      - name: Increment version and build
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           npm version patch -m "Release version %s"
           git push --follow-tags
-        run: npm run build
+          npm run build
 
       - name: Publish to npm
         run: npm publish
