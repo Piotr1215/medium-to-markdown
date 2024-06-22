@@ -36,36 +36,38 @@ jobs:
       - name: Check version
         id: check_version
         run: |
-          if [ "$(printf '%s\n' "${{ env.TAG_NAME }}" "${{ env.PACKAGE_VERSION }}" | sort -V | head -n1)" != "${{ env.TAG_NAME }}" ]; then
+          if [ "$(printf '%s\n' "${{ env.TAG_NAME }}" "${{ env.PACKAGE_VERSION }}" | sort -V | head -n1)" == "${{ env.PACKAGE_VERSION }}" ]; then
             echo "Package version is greater than or equal to tag version. Exiting..."
             exit 1
+          else
+            echo "Version is ok."
           fi
-          echo "Version is ok."
 
       - name: Update package version
-        if: steps.check_version.outputs.exit_code == 0
+        if: steps.check_version.outcome == 'success'
         run: |
           npm version ${{ env.TAG_NAME }} --no-git-tag-version
           git add package.json
           git commit -m "Update version to ${{ env.TAG_NAME }}"
 
       - name: Build project
+        if: steps.check_version.outcome == 'success'
         run: npm run build
 
       - name: Push changes
-        if: steps.check_version.outputs.exit_code == 0
+        if: steps.check_version.outcome == 'success'
         run: |
           git push https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
           git push --tags https://${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git
 
       - name: Publish to npm
-        if: steps.check_version.outputs.exit_code == 0
+        if: steps.check_version.outcome == 'success'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
-        if: steps.check_version.outputs.exit_code == 0
+        if: steps.check_version.outcome == 'success'
         uses: softprops/action-gh-release@v1
         with:
           files: |
