@@ -1,6 +1,9 @@
 {
   "name": "medium-blog-exporter",
-  "version": "1.4.12",
+  "version": "1.4.13",
+  "files": [
+    "dist"
+  ],
   "description": "Convert medium blogs to markdown and clearnup markdown",
   "main": "index.js",
   "bin": {
@@ -8,7 +11,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel . --out-dir dist --ignore node_modules,dist"
+    "build": "babel . --out-dir dist --ignore node_modules,dist",
+    "prepare": "npm run build"
   },
   "author": "Piotr Zaniewski",
   "license": "MIT",
