@@ -6,6 +6,13 @@ A simple tool to convert Medium blogs to Markdown and clean up the Markdown file
 
 This tool uses Puppeteer to scrape Medium blog posts, download images, convert the HTML content to Markdown using Pandoc, and then clean up the Markdown file by removing unwanted tags and formatting code blocks.
 
+## Prerequisites
+
+Ensure you have the following installed:
+
+- **Node.js**: Node.js is required, which includes the npm package manager. npm is used to install the necessary dependencies. You can download and install Node.js from the [official website](https://nodejs.org/).
+- **Pandoc**: Pandoc is used by the CLI to convert HTML content to Markdown. You can download and install Pandoc from the [official website](https://pandoc.org/).
+
 ## Installation
 
 Install the dependencies:
