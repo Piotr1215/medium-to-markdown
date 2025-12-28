@@ -14,6 +14,10 @@
     "build": "babel . --out-dir dist --ignore node_modules,dist",
     "prepare": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Piotr1215/medium-to-markdown"
+  },
   "author": "Piotr Zaniewski",
   "license": "MIT",
   "dependencies": {
