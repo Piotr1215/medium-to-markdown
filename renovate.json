@@ -7,17 +7,11 @@
   "assignees": ["Piotr1215"],
   "packageRules": [
     {
-      "description": "Auto-merge minor and patch updates when CI passes",
-      "matchUpdateTypes": ["minor", "patch"],
+      "description": "Auto-merge all updates when CI passes",
+      "matchUpdateTypes": ["major", "minor", "patch"],
       "automerge": true,
       "automergeType": "pr",
       "automergeStrategy": "squash"
-    },
-    {
-      "description": "Major updates require manual review",
-      "matchUpdateTypes": ["major"],
-      "dependencyDashboardApproval": true,
-      "labels": ["major-update"]
     },
     {
       "description": "Group GitHub Actions updates",
