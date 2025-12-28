@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin());
+
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
@@ -35,10 +38,15 @@ program
 
     console.log(`Navigating to ${url}`);
 
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: 'new' });
     const page = await browser.newPage();
     await page.goto(url, {
       waitUntil: 'networkidle2',
+      timeout: 60000,
+    });
+
+    await page.waitForSelector('article', { timeout: 30000 }).catch(() => {
+      console.error('Warning: article element not found within timeout');
     });
 
     const content = await page.evaluate(() => {
