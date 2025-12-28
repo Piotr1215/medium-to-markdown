@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "labels": ["dependencies"],
+  "semanticCommits": "enabled",
+  "commitMessagePrefix": "chore(deps):",
+  "assignees": ["Piotr1215"],
+  "packageRules": [
+    {
+      "description": "Auto-merge minor and patch updates when CI passes",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Major updates require manual review",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "labels": ["major-update"]
+    },
+    {
+      "description": "Group GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "semanticCommitType": "ci"
+    }
+  ],
+  "prCreation": "immediate",
+  "rebaseWhen": "behind-base-branch"
+}
