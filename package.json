@@ -1,6 +1,6 @@
 {
   "name": "medium-blog-exporter",
-  "version": "1.4.16",
+  "version": "1.5.0",
   "files": [
     "dist"
   ],
@@ -20,7 +20,8 @@
     "axios": "^1.7.2",
     "cheerio": "^1.0.0-rc.12",
     "commander": "^12.1.0",
-    "puppeteer": "^22.11.0"
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "keywords": [
     "medium",
