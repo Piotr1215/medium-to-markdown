@@ -12,7 +12,11 @@ jobs:
     uses: ./.github/workflows/build-reusable.yml
 
   publish:
+    needs: build-and-test
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
 
     steps:
       - name: Checkout code
@@ -22,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm install
@@ -51,9 +55,7 @@ jobs:
 
       - name: Publish to npm
         if: steps.check_version.outcome == 'success'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish
+        run: npm publish --provenance --access public
 
       - name: Create Git Tag
         if: steps.check_version.outcome == 'success'
