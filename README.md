@@ -1,5 +1,10 @@
 # Medium to Markdown Converter
 
+[![npm version](https://img.shields.io/npm/v/medium-blog-exporter.svg)](https://www.npmjs.com/package/medium-blog-exporter)
+[![npm downloads](https://img.shields.io/npm/dm/medium-blog-exporter.svg)](https://www.npmjs.com/package/medium-blog-exporter)
+[![Node.js](https://img.shields.io/badge/node-18%20%7C%2020%20%7C%2022-brightgreen)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A simple tool to convert Medium blogs to Markdown and clean up the Markdown file.
 
 ## Description
