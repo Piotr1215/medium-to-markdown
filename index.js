@@ -13,7 +13,7 @@ const program = new Command();
 program
   .name('mediummd')
   .description('Convert Medium blogs to markdown and clean up markdown')
-  .version('1.0.0')
+  .version(require('../package.json').version)
   .argument('<url>', 'Medium blog URL to convert to Markdown')
   .action(async (url) => {
     async function downloadImage(url, filepath) {
